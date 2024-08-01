@@ -1,0 +1,8 @@
+users infection_factor  time
+
+2      26                 17
+
+3      34                  20
+
+10      90                 120 
+
