@@ -1,0 +1,95 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "fhevm/lib/TFHE.sol";
+
+
+//okay here you have already done the encryption portion so that's alright
+//now you got to do the second step of the algorithm 
+//for this you need to take the values (encrypted values from the user and store them in your matrix)
+//so you will get the value from the user encrypted value and i and you got to make that value the encrypted value
+//and then return the value to the user
+
+contract BfsContract {
+    uint8[][] public adjMatrix;
+    euint8 [4][4] public encrypted_matrix;
+    euint8 public value = TFHE.asEuint8(32);
+    int[] public distance;
+    uint8 public sum=0;
+
+    
+    constructor(bytes calldata def) {
+        value=TFHE.asEuin8(def);
+        // Hardcoded 2D matrix
+       
+    }
+
+    function set_default (bytes calldata  def,uint8 rows,uint8 cols) public{
+        for (uint i = 0; i < rows; i++) {
+            for (uint j = 0; j < cols; j++) {
+                encrypted_matrix[i][j] = TFHE.asEuint8(def);
+            }
+        }
+        value=TFHE.asEuint8(def);
+    }
+
+    function set_value (bytes calldata v,uint i) public{
+       encrypted_matrix[i][i]=TFHE.asEuint8(v);
+    }
+
+
+
+    
+    int[]  distances = new int[](4);
+    function bfs(uint source) public   returns(int [] memory )   {
+        uint numNodes =encrypted_matrix.length;
+        
+        for (uint i = 0; i < numNodes; i++) {
+            distances[i] = -1; // Initialize distances to -1 (unreachable)
+        }
+
+        distances[source] = 0; // Distance from source to itself is 0
+        uint[] memory queue = new uint[](numNodes);
+        uint front = 0;
+        uint rear = 0;
+
+        queue[rear++] = source;
+
+        while (front < rear) {
+            uint currentNode = queue[front++];
+
+            for (uint neighbor = 0; neighbor < numNodes; neighbor++) {
+                if (TFHE.decrypt(TFHE.eq(encrypted_matrix[currentNode][neighbor],value)) && distances[neighbor] == -1) {
+                    distances[neighbor] = int(distances[currentNode]) + 1;
+                    queue[rear++] = neighbor;
+                }
+            }
+        }
+        return(distances);
+    }
+
+
+   function calculating(uint source) public  {
+    for (uint j = 0; j < distances.length; j++) {
+        // int r=distances[j];
+        uint8 s = 2;
+        for(int i=1;i<distances[j];i++){
+            s=s*2;
+        }
+        
+    //    sum=TFHE.decrypt(encrypted_matrix[j][j]);
+
+
+    }
+    // sum+uint8(3);
+}
+
+
+function show_cal() public view returns(uint8){
+        return(TFHE.decrypt(value));
+    } 
+
+
+
+
+}
